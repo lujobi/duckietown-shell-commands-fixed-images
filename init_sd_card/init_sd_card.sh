@@ -81,8 +81,13 @@ download_hypriot() {
 
 flash_hypriot() {
     echo "Flashing Hypriot image $HYPRIOT_LOCAL to disk ${INIT_SD_CARD_DEV}"
-    sudo -p "[sudo] Enter password for '%p' which is required to run Etcher: " \
+    if [[ ${INIT_SD_CARD_DEV} == /dev/* ]]; then
+      sudo -p "[sudo] Enter password for '%p' which is required to run Etcher: " \
         ${ETCHER_DIR}/etcher -d ${INIT_SD_CARD_DEV} -u false ${HYPRIOT_LOCAL}
+    else
+      sudo -p "[sudo] Enter password for '%p' which is required to create the virtual SD card: " \
+        unzip -p ${HYPRIOT_LOCAL} | dd conv=notrunc of=${INIT_SD_CARD_DEV} bs=1M status=progress
+    fi
     echo "Flashing Hypriot image succeeded."
 
 }

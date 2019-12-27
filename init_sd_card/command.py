@@ -90,6 +90,8 @@ PHASE_LOADING = "loading"
 PHASE_DONE = "done"
 
 SD_CARD_DEVICE = ""
+SD_CARD_SIMULATED = False
+SD_CARD_SIMULATED_SIZE_GB = 16
 DEFAULT_ROBOT_TYPE = "duckiebot"
 MINIMAL_STACKS_TO_LOAD = ['DT18_00_basic']
 DEFAULT_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_05_core"
@@ -110,6 +112,7 @@ from dt_shell import DTShell
 class DTCommand(DTCommandAbs):
     @staticmethod
     def command(shell: DTShell, args):
+        global SD_CARD_DEVICE, SD_CARD_SIMULATED
         parser = argparse.ArgumentParser()
 
         parser.add_argument(
@@ -206,9 +209,6 @@ class DTCommand(DTCommandAbs):
 
         parsed = parser.parse_args(args=args)
 
-        global SD_CARD_DEVICE
-        SD_CARD_DEVICE = parsed.device
-
         if parsed.reset_cache:
             dtslogger.info("Removing cache")
             if os.path.exists(DUCKIETOWN_TMP):
@@ -256,6 +256,13 @@ You can use --steps to run only some of those:
     """
         print(msg)
 
+        parsed.device = os.path.abspath(parsed.device)
+        SD_CARD_DEVICE = parsed.device
+
+        if not SD_CARD_DEVICE.startswith('/dev'):
+            SD_CARD_SIMULATED = True
+            _prepare_virtual_sd_card(SD_CARD_DEVICE)
+
         if "DOCKER_HOST" in os.environ:
             msg = "Removing DOCKER_HOST from os.environ."
             dtslogger.info(msg)
@@ -274,11 +281,15 @@ You can use --steps to run only some of those:
                 if r.strip() in ['', 'y', 'Y', 'yes', 'YES', 'yup', 'YUP']:
                     parsed.robot_type = DEFAULT_ROBOT_TYPE
                     break;
-                elif r.strip() in ['', 'n', 'N', 'no', 'NO', 'nope', 'NOPE']:
+                elif r.strip() in ['n', 'N', 'no', 'NO', 'nope', 'NOPE']:
                     dtslogger.info('Please retry while specifying a robot type. Bye bye!')
                     exit(1)
 
         dtslogger.setLevel(logging.DEBUG)
+
+        if SD_CARD_SIMULATED:
+            _umount_virtual_sd_card(SD_CARD_DEVICE, quiet=True)
+            SD_CARD_DEVICE = _mount_virtual_sd_card(SD_CARD_DEVICE)
 
         steps = parsed.steps.split(",")
         step2function = {
@@ -320,11 +331,15 @@ def sync_data():
 
 
 def step_unmount(shell, parsed):
+    global SD_CARD_SIMULATED
     sync_data()
     cmd = ["udisksctl", "unmount", "-b", DISK_HYPRIOTOS]
     _run_cmd(cmd)
     cmd = ["udisksctl", "unmount", "-b", DISK_ROOT]
     _run_cmd(cmd)
+    # unmount virtual SD card (if any)
+    if SD_CARD_SIMULATED:
+        _umount_virtual_sd_card(parsed.device)
 
 
 def check_good_platform():
@@ -388,7 +403,7 @@ def step_flash(shell, parsed):
         check_program_dependency(dep)
 
     # Ask for a device  if not set already:
-    global SD_CARD_DEVICE
+    global SD_CARD_DEVICE, SD_CARD_SIMULATED
     if SD_CARD_DEVICE == "":
         msg = "Please type the device with your SD card. Please be careful to pick the right device and \
 to include '/dev/'. Here's a list of the devices on your system:"
@@ -412,7 +427,7 @@ to include '/dev/'. Here's a list of the devices on your system:"
     script_file = get_resource("init_sd_card.sh")
     script_cmd = "/bin/bash %s" % script_file
     env = get_clean_env()
-    env["INIT_SD_CARD_DEV"] = SD_CARD_DEVICE
+    env["INIT_SD_CARD_DEV"] = SD_CARD_DEVICE if not SD_CARD_SIMULATED else parsed.device
     # pass HypriotOS version to init_sd_card script
     if parsed.experimental:
         env["HYPRIOTOS_VERSION"] = HYPRIOTOS_EXPERIMENTAL_VERSION
@@ -1335,3 +1350,62 @@ def get_md5(contents):
     m.update(contents.encode("utf-8"))
     s = m.hexdigest()
     return s
+
+def _prepare_virtual_sd_card(disk_file):
+    if not os.path.exists(disk_file):
+        # check if there is enough space
+        available = psutil.disk_usage("/").free
+        dtslogger.info(f"Available on '/': {friendly_size(available)}")
+        if available < (SD_CARD_SIMULATED_SIZE_GB + 20) * (1024 ** 3):
+            while True:
+                r = input(f"""
+Creating a virtual SD card in {disk_file} requires {SD_CARD_SIMULATED_SIZE_GB} GB of space on your disk.
+You have {friendly_size(available)} available. Do you want to continue? (y/n) [n] """)
+                if r.strip() in ['y', 'Y', 'yes', 'YES', 'yup', 'YUP']:
+                    break;
+                elif r.strip() in ['', 'n', 'N', 'no', 'NO', 'nope', 'NOPE']:
+                    dtslogger.info('Aborting...')
+                    exit(2)
+        # create virtual disk
+        dtslogger.info(f"Creating virtual SD card on {disk_file}")
+        _run_cmd(['dd', 'if=/dev/zero', f'of={disk_file}', 'bs=100M', f'count={10 * SD_CARD_SIMULATED_SIZE_GB}', 'status=progress'])
+        dtslogger.info("Done!")
+
+
+def _mount_virtual_sd_card(disk_file):
+    # refresh devices module
+    _run_cmd(['sudo', 'udevadm', 'trigger'])
+    # look for a free loop device
+    lodevs = subprocess.check_output(['sudo', 'losetup', '-f']).decode('utf-8').split('\n')
+    lodevs = list(filter(len, lodevs))
+    if len(lodevs) <= 0:
+        dtslogger.error('No free loop devices found. Cannot use virtual image. Free at least one loop device and retry.')
+        exit(3)
+    # make sure there is not a conflict with other partitions
+    if os.path.exists(DISK_HYPRIOTOS) or os.path.exists(DISK_ROOT):
+        dtslogger.error('Another partition with the same names (HypriotOS, root) was found in the system. Detach them before continuing.')
+        exit(4)
+    # mount loop device
+    dtslogger.info(f"Reading disk {disk_file}...")
+    lodev = subprocess.check_output(["sudo", "losetup", "--show", "-fPL", disk_file]).decode('utf-8').strip()
+    dtslogger.info("Done!")
+    return lodev
+
+
+def _umount_virtual_sd_card(disk_file, quiet=False):
+    # mount loop device
+    if not quiet:
+        dtslogger.info(f"Closing disk {disk_file}...")
+    try:
+        # free loop devices
+        output = subprocess.check_output(["sudo", "losetup", "--json"]).decode('utf-8')
+        devices = json.loads(output)
+        for dev in devices['loopdevices']:
+            if not ('(deleted)' in dev['back-file'] or dev['back-file'].split(' ')[0] == disk_file):
+                continue
+            _run_cmd(['sudo', 'losetup', '-d', dev['name']])
+    except Exception as e:
+        if not quiet:
+            raise e
+    if not quiet:
+        dtslogger.info("Done!")
