@@ -11,7 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   watchtower:
-    image: v2tec/watchtower:armhf-latest
+    image: v2tec/watchtower:armhf-latestsha256:b74a792de471c9652fb9456071f207eec88cd39dfb17d883d9b755ade5a40d24
     container_name: watchtower
     command: ["--cleanup"]
     restart: always
@@ -20,7 +20,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dashboard:
-    image: duckietown/dt-duckiebot-dashboard:daffy-arm32v7
+    image: duckietown/dt-duckiebot-dashboard:daffy-arm32v7@sha256:247f74be1051c3097dcbbb06a09d9ecbc877a42a5fda40fb7c290731ed69a800
     container_name: duckiebot-dashboard
     restart: unless-stopped
     network_mode: "host"
@@ -42,7 +42,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dt-device-loader:
-    image: duckietown/dt-device-loader:daffy-arm32v7
+    image: duckietown/dt-device-loader:daffy-arm32v7@sha256:82cdea83a565e531b7ad6cdddeccf0265d881e1461ad5e454bad567a45bf6cce
     container_name: device-loader
     restart: on-failure
     network_mode: "host"

@@ -1,7 +1,7 @@
 version: '3'
 services:
     duckiebot-interface:
-        image: duckietown/duckiebot-interface:master19
+        image: duckietown/duckiebot-interface:master19@sha256:4a64346a5dcd6dfb05dd45b90ed8aebd33b7eaae0410ef5337576268dd29203f
         restart: unless-stopped
         network_mode: host
         privileged: true

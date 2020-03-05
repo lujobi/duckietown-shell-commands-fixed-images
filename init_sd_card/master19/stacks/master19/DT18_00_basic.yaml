@@ -2,7 +2,7 @@ version: '3'
 services:
 
   portainer:
-    image: portainer/portainer:linux-arm
+    image: portainer/portainer:linux-arm@sha256:7aa9d50dfebcc84a356c29ec8fb205a7d20b9f2ebbc265b992891c20283b50fd
     command: ["--host=unix:///var/run/docker.sock", "--no-auth"]
     restart: always
     network_mode: "host"
@@ -10,7 +10,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   watchtower:
-    image: v2tec/watchtower:armhf-latest
+    image: v2tec/watchtower:armhf-latest@sha256:b74a792de471c9652fb9456071f207eec88cd39dfb17d883d9b755ade5a40d24
     command: ["--cleanup"]
     restart: unless-stopped
     network_mode: "host"

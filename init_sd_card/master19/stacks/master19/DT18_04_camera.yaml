@@ -2,7 +2,7 @@ version: '3'
 services:
 
     camera:
-        image: duckietown/rpi-duckiebot-ros-picam:master18
+        image: duckietown/rpi-duckiebot-ros-picam:master18@sha256:84945d3dfbdd0bae0b9158925f3c64cb4b197e2251f4f8ef40cbc9bd8921341d
         restart: unless-stopped
         network_mode: host
 
@@ -13,7 +13,7 @@ services:
 
     video_server:
 
-        image: duckietown/rpi-duckiebot-web_video_server:master18
+        image: duckietown/rpi-duckiebot-web_video_server:master18@sha256:14b7dee8e70a9fc3dd5b8cb584485282beb3dc7c094b84aa9ca5146a474c49ee
         restart: unless-stopped
         network_mode: host
 

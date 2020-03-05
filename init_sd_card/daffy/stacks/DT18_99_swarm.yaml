@@ -2,7 +2,7 @@ version: '3'
 services:
 
   duckietown-swarm:
-    image: duckietown/duckietown-swarm-rpi:latest
+    image: duckietown/duckietown-swarm-rpi:latest@sha256:817a270459b28fe211ba376c64bae846c170b84d265e5326ce7c6b97978a2946
     restart: unless-stopped
     network_mode: host
     environment:

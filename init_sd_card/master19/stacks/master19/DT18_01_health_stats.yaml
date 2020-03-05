@@ -2,7 +2,7 @@ version: '3'
 services:
 
   rpi-simple-server:
-    image: duckietown/rpi-simple-server:master18
+    image: duckietown/rpi-simple-server:master18@sha256:6b6787319cd87b413d5b0a8737f6127c719293c12936c94b5ea3a2d7fd62f6b5
     restart: always
     network_mode: "host"
     volumes:
@@ -10,14 +10,14 @@ services:
     working_dir: /data
 
   rpi-health:
-    image: duckietown/rpi-health:master18
+    image: duckietown/rpi-health:master18sha256:2fc13839c8e130b825b15b3a702c3b2775460a98eeb26ed7d3c4eb8fa771db17
     restart: always
     network_mode: "host"
     devices:
     - "/dev/vchiq:/dev/vchiq"
 
   rpi-duckiebot-online:
-    image: duckietown/rpi-duckiebot-online:master18
+    image: duckietown/rpi-duckiebot-online:master18@sha256:68e5d5b1d6677e8f0110b4f81bb1fb3d47d5658d8de8988108999b7cd8dce3e2
     restart: always
     network_mode: "host"
     volumes:
@@ -26,7 +26,7 @@ services:
     - "/var/local:/var/local"
 
   rpi-duckiebot-loader:
-    image: duckietown/rpi-duckiebot-loader:master18
+    image: duckietown/rpi-duckiebot-loader:master18@sha256:986708fcac2f9051b17f51c02514279a42089e758b220311ac2de52aa5bad1ec
     restart: always
     network_mode: "host"
     volumes:

@@ -9,7 +9,7 @@ services:
 
 
   rpi-duckiebot-base:
-    image: duckietown/rpi-duckiebot-base:master19
+    image: duckietown/rpi-duckiebot-base:master19@sha256:80f23a1835e6b3f9d2606aae54ce824dd13085e3e7491e87c7f0216797964b5c
 
 # now launchable through shell as a demo so not needed as a separate image
 #  rpi-duckiebot-ros-picam:
@@ -17,7 +17,7 @@ services:
 
 
   rpi-duckiebot-web_video_server:
-    image: duckietown/rpi-duckiebot-web_video_server:master18
+    image: duckietown/rpi-duckiebot-web_video_server:master18@sha256:14b7dee8e70a9fc3dd5b8cb584485282beb3dc7c094b84aa9ca5146a474c49ee
 
 # To visualize dependencies:
 

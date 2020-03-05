@@ -2,14 +2,14 @@ version: '3'
 services:
 
   dashboard:
-    image: duckietown/rpi-duckiebot-dashboard:master19
+    image: duckietown/rpi-duckiebot-dashboard:master19@sha256:f54683125ffe182b2a32a1643049f0b1c114d380dca8e0122fd742b44d18e46b
     restart: unless-stopped
     network_mode: "host"
     volumes:
       - compose-data:/var/www/html
 
   ros-websocket:
-    image: duckietown/rosbridge-websocket:master19
+    image: duckietown/rosbridge-websocket:master19@sha256:663eec480f5f375303f76389fb01cff2b8a4f1bc97b01817afaae45851e7ac8b
     restart: unless-stopped
     network_mode: "host"
 

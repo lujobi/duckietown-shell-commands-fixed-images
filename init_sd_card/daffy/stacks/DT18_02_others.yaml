@@ -2,7 +2,7 @@ version: '3'
 services:
 
   rpi-python-picamera:
-    image: duckietown/rpi-python-picamera:master18
+    image: duckietown/rpi-python-picamera:master18@sha256:56e72af27a01611f2e5b693e87a6361db470c0aced17fa509e64328139713b8c
     container_name: python-picamera
     network_mode: host
     volumes:
