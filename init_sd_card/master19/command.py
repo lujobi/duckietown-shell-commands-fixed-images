@@ -614,7 +614,7 @@ def configure_images(parsed, user_data, add_file_local, add_file):
             msg = 'If you want to run %r you need to load it as well.' % _
             raise Exception(msg)
 
-    configuration = parsed.configuration
+    configuration = DEFAULT_CONFIGURATION
     for cf in stacks_to_load:
         # local path
         lpath = get_resource(os.path.join('stacks', configuration, cf + '.yaml'))
