@@ -3,3 +3,4 @@
 .updates-check
 .idea
 lib
+**/__pycache__
