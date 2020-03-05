@@ -10,7 +10,7 @@ services:
     working_dir: /data
 
   rpi-health:
-    image: duckietown/rpi-health:master18sha256:2fc13839c8e130b825b15b3a702c3b2775460a98eeb26ed7d3c4eb8fa771db17
+    image: duckietown/rpi-health:master18@sha256:2fc13839c8e130b825b15b3a702c3b2775460a98eeb26ed7d3c4eb8fa771db17
     restart: always
     network_mode: "host"
     devices:
