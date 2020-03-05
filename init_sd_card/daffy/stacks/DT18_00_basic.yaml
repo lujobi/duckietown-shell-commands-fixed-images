@@ -11,7 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   watchtower:
-    image: v2tec/watchtower:armhf-latestsha256:b74a792de471c9652fb9456071f207eec88cd39dfb17d883d9b755ade5a40d24
+    image: v2tec/watchtower:armhf-latest@sha256:63abf3fc71a46b8fc46674342766d976e6a97d6c70d2560a0986ec63c1784812
     container_name: watchtower
     command: ["--cleanup"]
     restart: always
