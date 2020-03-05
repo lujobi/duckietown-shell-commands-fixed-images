@@ -10,7 +10,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   watchtower:
-    image: v2tec/watchtower:armhf-latest@sha256:b74a792de471c9652fb9456071f207eec88cd39dfb17d883d9b755ade5a40d24
+    image: v2tec/watchtower@sha256:b74a792de471c9652fb9456071f207eec88cd39dfb17d883d9b755ade5a40d24
     command: ["--cleanup"]
     restart: unless-stopped
     network_mode: "host"
