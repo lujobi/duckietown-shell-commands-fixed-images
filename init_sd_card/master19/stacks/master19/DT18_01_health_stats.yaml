@@ -10,8 +10,7 @@ services:
     working_dir: /data
 
   rpi-health:
-    image: duckietown/rpi-health:master18@sha256:2fc13839c8e130b825b15b3a702c3b2775460a98eeb26ed7d3c4eb8fa771db17
-    restart: always
+    image: duckietown/rpi-health:master18@sha256:c368e18f3fd804d2b801a6a650a8811f82cd92272a77838737527795aedd79f3
     network_mode: "host"
     devices:
     - "/dev/vchiq:/dev/vchiq"
