@@ -1,2 +1,1 @@
-# noinspection PyUnresolvedReferences
-from .command import DTCommand
+from .command import *
