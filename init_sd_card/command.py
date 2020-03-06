@@ -18,3 +18,5 @@ class DTCommand(DTCommandAbs):
             ente(shell, args)
         elif benchmark_version == 'daffy':
             daffy(shell, args)
+        else:
+            print("error")
