@@ -106,10 +106,7 @@ class InvalidUserInput(Exception):
 
 from dt_shell import DTShell
 
-
-class DTCommand(DTCommandAbs):
-    @staticmethod
-    def command(shell: DTShell, args):
+    def command(shell, args):
         parser = argparse.ArgumentParser()
 
         parser.add_argument(

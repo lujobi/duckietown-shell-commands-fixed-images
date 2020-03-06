@@ -4,7 +4,7 @@ import json
 from os import makedirs
 from os.path import basename, dirname, isdir, exists, join
 
-SUPPORTED_BENCHMARKS = ["master19","daffy"]
+SUPPORTED_BENCHMARKS = ["master19","daffy", "ente"]
 ROOT = '~/.dt-shell/benchmark'
 config_path = os.path.expanduser(ROOT)
 config_file = join(config_path, 'config')
