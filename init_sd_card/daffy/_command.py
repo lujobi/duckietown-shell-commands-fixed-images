@@ -3,7 +3,6 @@ from utils.duckietown_utils import get_robot_types
 
 INIT_SD_CARD_VERSION = "2.0.5"  # incremental number, semantic version
 HYPRIOTOS_STABLE_VERSION = "1.9.0"
-HYPRIOTOS_EXPERIMENTAL_VERSION = "1.11.1"
 
 CHANGELOG = (
     """
@@ -93,7 +92,6 @@ SD_CARD_DEVICE = ""
 DEFAULT_ROBOT_TYPE = "duckiebot"
 DEFAULT_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_05_core"
 DEFAULT_STACKS_TO_RUN = "DT18_00_basic,DT18_01_health,DT18_03_interface"
-AIDO_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_05_core"
 
 
 # TODO: https://raw.githubusercontent.com/duckietown/Software/master18/misc/duckie.art
@@ -103,29 +101,10 @@ from dt_shell import DTShell
 
 def command(shell, args):
     parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--steps",
-        default="flash,expand,mount,setup,unmount",
-        help="Steps to perform",
-    )
-
+    
     parser.add_argument("--hostname", required=True)
     parser.add_argument("--linux-username", default="duckie")
     parser.add_argument("--linux-password", default="quackquack")
-
-    parser.add_argument(
-        "--stacks-load",
-        dest="stacks_to_load",
-        default=DEFAULT_STACKS_TO_LOAD,
-        help="which stacks to load",
-    )
-    parser.add_argument(
-        "--stacks-run",
-        dest="stacks_to_run",
-        default=DEFAULT_STACKS_TO_RUN,
-        help="which stacks to RUN by default",
-    )
 
     parser.add_argument(
         "--reset-cache",
@@ -147,14 +126,6 @@ def command(shell, args):
         "--device", dest="device", default="", help="The device with the SD card"
     )
 
-    parser.add_argument(
-        "--aido",
-        dest="aido",
-        default=False,
-        action="store_true",
-        help="Only load what is necessary for an AI-DO submission",
-    )
-
     # parser.add_argument('--swap', default=False, action='store_true',
     #                     help='Create swap space')
     parser.add_argument(
@@ -174,14 +145,6 @@ def command(shell, args):
     parser.add_argument("--ethz-password", default=None)
 
     parser.add_argument(
-        "--experimental",
-        dest="experimental",
-        default=False,
-        action="store_true",
-        help="Use experimental settings",
-    )
-
-    parser.add_argument(
         '--type',
         dest='robot_type',
         default=None,
@@ -199,19 +162,9 @@ def command(shell, args):
         if os.path.exists(DUCKIETOWN_TMP):
             shutil.rmtree(DUCKIETOWN_TMP)
 
-    # if aido is set overwrite the stacks (don't load the base)
-    if parsed.aido:
-        parsed.stacks_to_load = AIDO_STACKS_TO_LOAD
-        parsed.stacks_to_run = parsed.stacks_to_load
-
     # turn off wifi for type watchtower
     if parsed.robot_type == 'watchtower':
         parsed.wifi = ""
-
-    # support drones
-    if parsed.robot_type == 'duckiedrone':
-        parsed.stacks_to_load = ""
-        parsed.stacks_to_run = ""
 
     msg = """
 
@@ -220,23 +173,6 @@ def command(shell, args):
 ### Multiple networks
 
     dts init_sd_card --wifi network1:password1,network2:password2 --country US
-
-
-
-### Steps
-
-Without arguments the script performs the steps:
-
-    flash
-    expand
-    mount
-    setup
-    unmount
-
-You can use --steps to run only some of those:
-
-    dts init_sd_card --steps expand,mount
-
 
 
     """
@@ -251,9 +187,6 @@ You can use --steps to run only some of those:
     check_good_platform()
     check_dependencies()
 
-    if parsed.experimental:
-        dtslogger.info("Running experimental mode!")
-
     if parsed.robot_type is None:
         while True:
             r = input('You did not specify a robot type. Default is "{}". Do you confirm? [y]'.format(DEFAULT_ROBOT_TYPE))
@@ -266,7 +199,6 @@ You can use --steps to run only some of those:
 
     dtslogger.setLevel(logging.DEBUG)
 
-    steps = parsed.steps.split(",")
     step2function = {
         "flash": step_flash,
         "expand": step_expand,
@@ -275,11 +207,7 @@ You can use --steps to run only some of those:
         "unmount": step_unmount,
     }
 
-    for step_name in steps:
-        if step_name not in step2function:
-            msg = "Cannot find step %r in %s" % (step_name, list(step2function))
-            raise InvalidUserInput(msg)
-
+    for step_name in step2function:
         step2function[step_name](shell, parsed)
 
 
@@ -400,10 +328,7 @@ to include '/dev/'. Here's a list of the devices on your system:"
     env = get_clean_env()
     env["INIT_SD_CARD_DEV"] = SD_CARD_DEVICE
     # pass HypriotOS version to init_sd_card script
-    if parsed.experimental:
-        env["HYPRIOTOS_VERSION"] = HYPRIOTOS_EXPERIMENTAL_VERSION
-    else:
-        env["HYPRIOTOS_VERSION"] = HYPRIOTOS_STABLE_VERSION
+    env["HYPRIOTOS_VERSION"] = HYPRIOTOS_STABLE_VERSION
     start_command_in_subprocess(script_cmd, env)
 
     dtslogger.info("Waiting 5 seconds for the device to get ready...")
@@ -465,17 +390,7 @@ def step_expand(shell, parsed):
     cmd = ["sudo", "lsblk", SD_CARD_DEVICE]
     _run_cmd(cmd)
 
-    # get the disk identifier of the SD card (experimental mode only)
     uuid = None
-    if parsed.experimental:
-        # IMPORTANT: This must be executed before `parted`
-        p = re.compile(".*Disk identifier: 0x([0-9a-z]*).*")
-        cmd = ["sudo", "fdisk", "-l", SD_CARD_DEVICE]
-        dtslogger.debug("$ %s" % cmd)
-        pc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        ret, err = pc.communicate()
-        m = p.search(ret.decode("utf-8"))
-        uuid = m.group(1)
 
     cmd = ["sudo", "parted", "-s", SD_CARD_DEVICE, "resizepart", "2", "100%"]
     _run_cmd(cmd)
@@ -485,16 +400,6 @@ def step_expand(shell, parsed):
 
     cmd = ["sudo", "resize2fs", DEVp2]
     _run_cmd(cmd)
-
-    # restore the original disk identifier (experimental mode only)
-    if parsed.experimental:
-        cmd = ["sudo", "fdisk", SD_CARD_DEVICE]
-        dtslogger.debug("$ %s" % cmd)
-        p = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE
-        )
-        ret, err = p.communicate(input=("x\ni\n0x%s\nr\nw" % uuid).encode("ascii"))
-        print(ret.decode("utf-8"))
 
     dtslogger.info("Updated status:")
     cmd = ["sudo", "lsblk", SD_CARD_DEVICE]
@@ -637,11 +542,11 @@ The files in this directory:
     )
     add_file(
         path="/data/stats/init_sd_card/parameters/stacks_to_run",
-        content=parsed.stacks_to_run,
+        content=DEFAULT_STACKS_TO_RUN,
     )
     add_file(
         path="/data/stats/init_sd_card/parameters/stacks_to_load",
-        content=parsed.stacks_to_load,
+        content=DEFAULT_STACKS_TO_LOAD,
     )
     add_file(
         path="/data/stats/init_sd_card/parameters/compress",
@@ -737,8 +642,8 @@ dtparam=i2c_arm=on
 
 def configure_images(parsed, user_data, add_file_local, add_file):
     # read and validate docker-compose stacks
-    arg_stacks_to_load = list(filter(lambda s: len(s) > 0, parsed.stacks_to_load.split(",")))
-    arg_stacks_to_run = list(filter(lambda s: len(s) > 0, parsed.stacks_to_run.split(",")))
+    arg_stacks_to_load = list(filter(lambda s: len(s) > 0, DEFAULT_STACKS_TO_LOAD.split(",")))
+    arg_stacks_to_run = list(filter(lambda s: len(s) > 0, DEFAULT_STACKS_TO_RUN.split(",")))
     dtslogger.info("Stacks to load: %s" % arg_stacks_to_load)
     dtslogger.info("Stacks to run: %s" % arg_stacks_to_run)
 
