@@ -91,7 +91,6 @@ PHASE_DONE = "done"
 
 SD_CARD_DEVICE = ""
 DEFAULT_ROBOT_TYPE = "duckiebot"
-MINIMAL_STACKS_TO_LOAD = ['DT18_00_basic']
 DEFAULT_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_05_core"
 DEFAULT_STACKS_TO_RUN = "DT18_00_basic,DT18_01_health,DT18_03_interface"
 AIDO_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_05_core"
@@ -190,13 +189,6 @@ def command(shell, args):
         help='Which type of robot we are setting up'
     )
 
-    parser.add_argument(
-        '--online',
-        default=False,
-        action="store_true",
-        help='Whether to flash the images to the SD card'
-    )
-
     parsed = parser.parse_args(args=args)
 
     global SD_CARD_DEVICE
@@ -220,10 +212,6 @@ def command(shell, args):
     if parsed.robot_type == 'duckiedrone':
         parsed.stacks_to_load = ""
         parsed.stacks_to_run = ""
-
-    if ("--online" in args) and ("--stacks-load" in args or "--stacks-run" in args):
-        msg = "The option --online cannot be used together with --stacks-load/--stacks-run."
-        raise Exception(msg)
 
     msg = """
 
@@ -769,17 +757,8 @@ def configure_images(parsed, user_data, add_file_local, add_file):
     stacks_to_load = arg_stacks_to_load
     stacks_to_run = arg_stacks_to_run
 
-    if parsed.online:
-        # online:
-        # - only minimal configuration gets copied to the SD card
-        stacks_for_images_to_load = MINIMAL_STACKS_TO_LOAD
-        # load everything (but the minimal)
-        stacks_to_load = [_ for _ in arg_stacks_to_load if _ not in MINIMAL_STACKS_TO_LOAD]
-    else:
-        # offline:
-        # - all the selected images get copied to the SD card
-        stacks_for_images_to_load = stacks_to_load
-        stacks_to_load = []
+    stacks_for_images_to_load = stacks_to_load
+    stacks_to_load = []
 
     # export images to tar files
     stack2yaml = get_stack2yaml(
@@ -822,7 +801,7 @@ def configure_images(parsed, user_data, add_file_local, add_file):
 
     for cf in order:
 
-        if (cf in stacks_written) and (cf in MINIMAL_STACKS_TO_LOAD):
+        if (cf in stacks_written):
 
             log_current_phase(
                 user_data, PHASE_LOADING, "Stack %s: Loading containers" % cf

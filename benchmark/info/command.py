@@ -9,7 +9,3 @@ class DTCommand(DTCommandAbs):
     def command(shell: DTShell, args):
         msg = 'this is the current config of the benchmark: \n %s' % load_config()
         print(msg)
-    
-
-            
-
