@@ -100,136 +100,132 @@ AIDO_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_05_core"
 # TODO: https://raw.githubusercontent.com/duckietown/Software/master18/misc/duckie.art
 
 
-class InvalidUserInput(Exception):
-    pass
-
-
 from dt_shell import DTShell
 
-    def command(shell, args):
-        parser = argparse.ArgumentParser()
+def command(shell, args):
+    parser = argparse.ArgumentParser()
 
-        parser.add_argument(
-            "--steps",
-            default="flash,expand,mount,setup,unmount",
-            help="Steps to perform",
-        )
+    parser.add_argument(
+        "--steps",
+        default="flash,expand,mount,setup,unmount",
+        help="Steps to perform",
+    )
 
-        parser.add_argument("--hostname", required=True)
-        parser.add_argument("--linux-username", default="duckie")
-        parser.add_argument("--linux-password", default="quackquack")
+    parser.add_argument("--hostname", required=True)
+    parser.add_argument("--linux-username", default="duckie")
+    parser.add_argument("--linux-password", default="quackquack")
 
-        parser.add_argument(
-            "--stacks-load",
-            dest="stacks_to_load",
-            default=DEFAULT_STACKS_TO_LOAD,
-            help="which stacks to load",
-        )
-        parser.add_argument(
-            "--stacks-run",
-            dest="stacks_to_run",
-            default=DEFAULT_STACKS_TO_RUN,
-            help="which stacks to RUN by default",
-        )
+    parser.add_argument(
+        "--stacks-load",
+        dest="stacks_to_load",
+        default=DEFAULT_STACKS_TO_LOAD,
+        help="which stacks to load",
+    )
+    parser.add_argument(
+        "--stacks-run",
+        dest="stacks_to_run",
+        default=DEFAULT_STACKS_TO_RUN,
+        help="which stacks to RUN by default",
+    )
 
-        parser.add_argument(
-            "--reset-cache",
-            dest="reset_cache",
-            default=False,
-            action="store_true",
-            help="Deletes the cached images",
-        )
+    parser.add_argument(
+        "--reset-cache",
+        dest="reset_cache",
+        default=False,
+        action="store_true",
+        help="Deletes the cached images",
+    )
 
-        parser.add_argument(
-            "--compress",
-            dest="compress",
-            default=False,
-            action="store_true",
-            help="Compress the images - use if you have a 16GB SD card",
-        )
+    parser.add_argument(
+        "--compress",
+        dest="compress",
+        default=False,
+        action="store_true",
+        help="Compress the images - use if you have a 16GB SD card",
+    )
 
-        parser.add_argument(
-            "--device", dest="device", default="", help="The device with the SD card"
-        )
+    parser.add_argument(
+        "--device", dest="device", default="", help="The device with the SD card"
+    )
 
-        parser.add_argument(
-            "--aido",
-            dest="aido",
-            default=False,
-            action="store_true",
-            help="Only load what is necessary for an AI-DO submission",
-        )
+    parser.add_argument(
+        "--aido",
+        dest="aido",
+        default=False,
+        action="store_true",
+        help="Only load what is necessary for an AI-DO submission",
+    )
 
-        # parser.add_argument('--swap', default=False, action='store_true',
-        #                     help='Create swap space')
-        parser.add_argument(
-            "--country", default="US", help="2-letter country code (US, CA, CH, etc.)"
-        )
-        parser.add_argument(
-            "--wifi",
-            dest="wifi",
-            default="duckietown:quackquack",
-            help="""
-        Can specify one or more networks: "network:password,network:password,..."
+    # parser.add_argument('--swap', default=False, action='store_true',
+    #                     help='Create swap space')
+    parser.add_argument(
+        "--country", default="US", help="2-letter country code (US, CA, CH, etc.)"
+    )
+    parser.add_argument(
+        "--wifi",
+        dest="wifi",
+        default="duckietown:quackquack",
+        help="""
+    Can specify one or more networks: "network:password,network:password,..."
 
-                                    """,
-        )
+                                """,
+    )
 
-        parser.add_argument("--ethz-username", default=None)
-        parser.add_argument("--ethz-password", default=None)
+    parser.add_argument("--ethz-username", default=None)
+    parser.add_argument("--ethz-password", default=None)
 
-        parser.add_argument(
-            "--experimental",
-            dest="experimental",
-            default=False,
-            action="store_true",
-            help="Use experimental settings",
-        )
+    parser.add_argument(
+        "--experimental",
+        dest="experimental",
+        default=False,
+        action="store_true",
+        help="Use experimental settings",
+    )
 
-        parser.add_argument(
-            '--type',
-            dest='robot_type',
-            default=None,
-            choices=get_robot_types(),
-            help='Which type of robot we are setting up'
-        )
+    parser.add_argument(
+        '--type',
+        dest='robot_type',
+        default=None,
+        choices=get_robot_types(),
+        help='Which type of robot we are setting up'
+    )
 
-        parser.add_argument(
-            '--online',
-            default=False,
-            action="store_true",
-            help='Whether to flash the images to the SD card'
-        )
+    parser.add_argument(
+        '--online',
+        default=False,
+        action="store_true",
+        help='Whether to flash the images to the SD card'
+    )
 
-        parsed = parser.parse_args(args=args)
+    parsed = parser.parse_args(args=args)
 
-        global SD_CARD_DEVICE
-        SD_CARD_DEVICE = parsed.device
+    global SD_CARD_DEVICE
+    SD_CARD_DEVICE = parsed.device
 
-        if parsed.reset_cache:
-            dtslogger.info("Removing cache")
-            if os.path.exists(DUCKIETOWN_TMP):
-                shutil.rmtree(DUCKIETOWN_TMP)
+    if parsed.reset_cache:
+        dtslogger.info("Removing cache")
+        if os.path.exists(DUCKIETOWN_TMP):
+            shutil.rmtree(DUCKIETOWN_TMP)
 
-        # if aido is set overwrite the stacks (don't load the base)
-        if parsed.aido:
-            parsed.stacks_to_load = AIDO_STACKS_TO_LOAD
-            parsed.stacks_to_run = parsed.stacks_to_load
+    # if aido is set overwrite the stacks (don't load the base)
+    if parsed.aido:
+        parsed.stacks_to_load = AIDO_STACKS_TO_LOAD
+        parsed.stacks_to_run = parsed.stacks_to_load
 
-        # turn off wifi for type watchtower
-        if parsed.robot_type == 'watchtower':
-            parsed.wifi = ""
+    # turn off wifi for type watchtower
+    if parsed.robot_type == 'watchtower':
+        parsed.wifi = ""
 
-        # support drones
-        if parsed.robot_type == 'duckiedrone':
-            parsed.stacks_to_load = ""
-            parsed.stacks_to_run = ""
+    # support drones
+    if parsed.robot_type == 'duckiedrone':
+        parsed.stacks_to_load = ""
+        parsed.stacks_to_run = ""
 
-        if ("--online" in args) and ("--stacks-load" in args or "--stacks-run" in args):
-            msg = "The option --online cannot be used together with --stacks-load/--stacks-run."
-            raise Exception(msg)
+    if ("--online" in args) and ("--stacks-load" in args or "--stacks-run" in args):
+        msg = "The option --online cannot be used together with --stacks-load/--stacks-run."
+        raise Exception(msg)
 
-        msg = """
+    msg = """
 
 ## Tips and tricks
 
@@ -256,47 +252,47 @@ You can use --steps to run only some of those:
 
 
     """
-        print(msg)
+    print(msg)
 
-        if "DOCKER_HOST" in os.environ:
-            msg = "Removing DOCKER_HOST from os.environ."
-            dtslogger.info(msg)
-            os.environ.pop("DOCKER_HOST")
+    if "DOCKER_HOST" in os.environ:
+        msg = "Removing DOCKER_HOST from os.environ."
+        dtslogger.info(msg)
+        os.environ.pop("DOCKER_HOST")
 
-        check_docker_environment()
-        check_good_platform()
-        check_dependencies()
+    check_docker_environment()
+    check_good_platform()
+    check_dependencies()
 
-        if parsed.experimental:
-            dtslogger.info("Running experimental mode!")
+    if parsed.experimental:
+        dtslogger.info("Running experimental mode!")
 
-        if parsed.robot_type is None:
-            while True:
-                r = input('You did not specify a robot type. Default is "{}". Do you confirm? [y]'.format(DEFAULT_ROBOT_TYPE))
-                if r.strip() in ['', 'y', 'Y', 'yes', 'YES', 'yup', 'YUP']:
-                    parsed.robot_type = DEFAULT_ROBOT_TYPE
-                    break;
-                elif r.strip() in ['', 'n', 'N', 'no', 'NO', 'nope', 'NOPE']:
-                    dtslogger.info('Please retry while specifying a robot type. Bye bye!')
-                    exit(1)
+    if parsed.robot_type is None:
+        while True:
+            r = input('You did not specify a robot type. Default is "{}". Do you confirm? [y]'.format(DEFAULT_ROBOT_TYPE))
+            if r.strip() in ['', 'y', 'Y', 'yes', 'YES', 'yup', 'YUP']:
+                parsed.robot_type = DEFAULT_ROBOT_TYPE
+                break;
+            elif r.strip() in ['', 'n', 'N', 'no', 'NO', 'nope', 'NOPE']:
+                dtslogger.info('Please retry while specifying a robot type. Bye bye!')
+                exit(1)
 
-        dtslogger.setLevel(logging.DEBUG)
+    dtslogger.setLevel(logging.DEBUG)
 
-        steps = parsed.steps.split(",")
-        step2function = {
-            "flash": step_flash,
-            "expand": step_expand,
-            "mount": step_mount,
-            "setup": step_setup,
-            "unmount": step_unmount,
-        }
+    steps = parsed.steps.split(",")
+    step2function = {
+        "flash": step_flash,
+        "expand": step_expand,
+        "mount": step_mount,
+        "setup": step_setup,
+        "unmount": step_unmount,
+    }
 
-        for step_name in steps:
-            if step_name not in step2function:
-                msg = "Cannot find step %r in %s" % (step_name, list(step2function))
-                raise InvalidUserInput(msg)
+    for step_name in steps:
+        if step_name not in step2function:
+            msg = "Cannot find step %r in %s" % (step_name, list(step2function))
+            raise InvalidUserInput(msg)
 
-            step2function[step_name](shell, parsed)
+        step2function[step_name](shell, parsed)
 
 
 def step_mount(shell, parsed):
