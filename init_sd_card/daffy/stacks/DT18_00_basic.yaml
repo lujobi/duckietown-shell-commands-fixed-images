@@ -22,7 +22,7 @@ services:
   dashboard:
     image: duckietown/dt-duckiebot-dashboard:daffy-arm32v7@sha256:247f74be1051c3097dcbbb06a09d9ecbc877a42a5fda40fb7c290731ed69a800
     container_name: duckiebot-dashboard
-    restart: unless-stopped
+    restart: always
     network_mode: "host"
     volumes:
       - compose-data:/var/www/html
