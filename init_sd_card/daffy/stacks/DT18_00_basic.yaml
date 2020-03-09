@@ -20,7 +20,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dashboard:
-    image: duckietown/dt-duckiebot-dashboard:daffy-arm32v7@sha256:3853d6c4ebf8ef0cb4cb5ab6a2632dacb022b608731775818ec9f8b5b1e714d1 
+    image: duckietown/dt-duckiebot-dashboard@sha256:247f74be1051c3097dcbbb06a09d9ecbc877a42a5fda40fb7c290731ed69a800
     container_name: duckiebot-dashboard
     restart: always
     network_mode: "host"
