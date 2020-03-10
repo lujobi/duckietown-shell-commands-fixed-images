@@ -2,7 +2,7 @@ version: '3'
 services:
 
   portainer:
-    image: portainer/portainer:linux-arm@sha256:7aa9d50dfebcc84a356c29955068efabd114891b61d8c9982cd1f62b057fd15f686e60d4cab2cd30f623ceec8fb205a7d20b9f2ebbc265b992891c20283b50fd
+    image: portainer/portainer:linux-arm@sha256:7aa9d50dfebcc84a356c29ec8fb205a7d20b9f2ebbc265b992891c20283b50fd
     container_name: portainer
     command: ["--host=unix:///var/run/docker.sock", "--no-auth"]
     restart: always
@@ -11,7 +11,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   watchtower:
-    image: v2tec/watchtower:armhf-latest@sha256:b74a792de471c9652fb9456071f207eec88cd39dfb17d883d9b755ade5a40d24
+    image: v2tec/watchtower:armhf-latestsha256:63abf3fc71a46b8fc46674342766d976e6a97d6c70d2560a0986ec63c1784812
     container_name: watchtower
     command: ["--cleanup"]
     restart: on-failure
@@ -20,7 +20,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dashboard:
-    image: duckietown/dt-duckiebot-dashboard@sha256:3853d6c4ebf8ef0cb4cb5ab6a2632dacb022b608731775818ec9f8b5b1e714d1
+    image: duckietown/dt-duckiebot-dashboard@sha256:247f74be1051c3097dcbbb06a09d9ecbc877a42a5fda40fb7c290731ed69a800
     container_name: duckiebot-dashboard
     restart: always
     network_mode: "host"
@@ -42,7 +42,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   dt-device-loader:
-    image: duckietown/dt-device-loader:daffy-arm32v7@sha256:b6a91064fb15390c659029496e807ea6c93a8e9b3834c96a2c615f455d7578aa
+    image: duckietown/dt-device-loader:daffy-arm32v7@sha256:82cdea83a565e531b7ad6cdddeccf0265d881e1461ad5e454bad567a45bf6cce
     container_name: device-loader
     restart: on-failure
     network_mode: "host"
