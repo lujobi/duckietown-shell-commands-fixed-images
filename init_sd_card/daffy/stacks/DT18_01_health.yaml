@@ -2,7 +2,7 @@ version: '3'
 services:
 
   rpi-health:
-    image: duckietown/rpi-health:master18@sha256:c368e18f3fd804d2b801a6a650a8811f82cd92272a77838737527795aedd79f3
+    image: duckietown/rpi-health@sha256:c368e18f3fd804d2b801a6a650a8811f82cd92272a77838737527795aedd79f3
     container_name: health
     restart: always
     network_mode: "host"
@@ -13,7 +13,7 @@ services:
       - /etc/avahi/services:/etc/avahi/services
 
   dt-device-online:
-    image: duckietown/dt-device-online:daffy-arm32v7@sha256:2fc13839c8e130b825b15b3a702c3b2775460a98eeb26ed7d3c4eb8fa771db17
+    image: duckietown/dt-device-online@sha256:2fc13839c8e130b825b15b3a702c3b2775460a98eeb26ed7d3c4eb8fa771db17
     container_name: device-online
     restart: always
     network_mode: "host"

@@ -2,7 +2,7 @@ version: '3'
 services:
 
   dt-core:
-    image: duckietown/dt-core:daffy-arm32v7@sha256:4c7633c2041f5b7846be2346e0892c9f50987d2fd98d3479ec1a4cf378f52ee6
+    image: duckietown/dt-core@sha256:4c7633c2041f5b7846be2346e0892c9f50987d2fd98d3479ec1a4cf378f52ee6
     container_name: core
     volumes:
       # avahi services

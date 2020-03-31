@@ -2,7 +2,7 @@ version: '3'
 services:
 
   duckiebot-interface:
-    image: duckietown/dt-duckiebot-interface:daffy-arm32v7@sha256:94a9defa553d1e238566a621e084c4b368e6a9b62053b02f0eef1d5685f9ea73
+    image: duckietown/dt-duckiebot-interface@sha256:94a9defa553d1e238566a621e084c4b368e6a9b62053b02f0eef1d5685f9ea73
     container_name: duckiebot-interface
     restart: unless-stopped
     network_mode: host
@@ -15,7 +15,7 @@ services:
       - /etc/avahi/services:/etc/avahi/services
 
   car-interface:
-    image: duckietown/dt-car-interface:daffy-arm32v7@sha256:e3db984157bf3a2b2d4ab7237536c17b37333711244a3206517daa187c143016
+    image: duckietown/dt-car-interface@sha256:e3db984157bf3a2b2d4ab7237536c17b37333711244a3206517daa187c143016
     container_name: car-interface
     restart: unless-stopped
     network_mode: host
@@ -28,7 +28,7 @@ services:
       - /etc/avahi/services:/etc/avahi/services
 
   ros-websocket:
-    image: duckietown/dt-rosbridge-websocket:daffy-arm32v7@sha256:ae113368a58e0d3f52557a10794a8492645b05864d0f9ca151c48bd42c900a41
+    image: duckietown/dt-rosbridge-websocket@sha256:ae113368a58e0d3f52557a10794a8492645b05864d0f9ca151c48bd42c900a41
     container_name: rosbridge-websocket
     restart: unless-stopped
     network_mode: "host"
@@ -37,7 +37,7 @@ services:
       - /etc/avahi/services:/etc/avahi/services
 
   rpi-simple-server:
-    image: duckietown/rpi-simple-server:master18@sha256:6b6787319cd87b413d5b0a8737f6127c719293c12936c94b5ea3a2d7fd62f6b5
+    image: duckietown/rpi-simple-server@sha256:6b6787319cd87b413d5b0a8737f6127c719293c12936c94b5ea3a2d7fd62f6b5
     container_name: simple-server
     restart: always
     network_mode: "host"
