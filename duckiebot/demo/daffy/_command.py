@@ -22,7 +22,7 @@ usage = """
 
 """
 
-CALLIBRATION_IMAGE = "duckietown/dt-core@sha256:d72e8a8c3191c146ecc2a812bdd036aaf15076e6c1cb9467304e0e54f9a39a10
+CALLIBRATION_IMAGE = "duckietown/dt-core@sha256:d72e8a8c3191c146ecc2a812bdd036aaf15076e6c1cb9467304e0e54f9a39a10"
 
 class InvalidUserInput(Exception):
     pass
