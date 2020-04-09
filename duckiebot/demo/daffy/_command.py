@@ -22,11 +22,9 @@ usage = """
 
 """
 
-CALLIBRATION_IMAGE = "duckietown/dt-core@sha256:d72e8a8c3191c146ecc2a812bdd036aaf15076e6c1cb9467304e0e54f9a39a10"
 
 class InvalidUserInput(Exception):
     pass
-
 
 
 def command(shell, args):
@@ -52,6 +50,13 @@ def command(shell, args):
         dest="package_name",
         default="duckietown_demos",
         help="You can specify the package that you want to use to look for launch files",
+    )
+
+    parser.add_argument(
+        "--image", '-i',
+        dest="image_to_run",
+        default="duckietown/dt-core:daffy",
+        help="Docker image to use, you probably don't need to change ",
     )
 
     parser.add_argument(
@@ -95,6 +100,7 @@ def command(shell, args):
 
     container_name = "demo_%s" % demo_name
     remove_if_running(duckiebot_client, container_name)
+    image_base = parsed.image_to_run
     env_vars = default_env(duckiebot_name, duckiebot_ip)
     env_vars.update({
         "VEHICLE_NAME": duckiebot_name,
@@ -110,11 +116,11 @@ def command(shell, args):
             duckiebot_name,
         )
 
-    pull_if_not_exist(duckiebot_client, CALLIBRATION_IMAGE)
+    pull_if_not_exist(duckiebot_client, image_base)
 
     dtslogger.info("Running command %s" % cmd)
     demo_container = duckiebot_client.containers.run(
-        image=CALLIBRATION_IMAGE,
+        image=image_base,
         command=cmd,
         network_mode="host",
         volumes=bind_duckiebot_data_dir(),

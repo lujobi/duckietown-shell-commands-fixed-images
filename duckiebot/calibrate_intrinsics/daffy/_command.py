@@ -10,7 +10,7 @@ from utils.cli_utils import start_command_in_subprocess
 from utils.docker_utils import get_remote_client, remove_if_running, pull_if_not_exist
 from utils.networking_utils import get_duckiebot_ip
 
-CALLIBRATION_IMAGE = "duckietown/dt-core:daffy-amd64@sha256:4c7633c2041f5b7846be2346e0892c9f50987d2fd98d3479ec1a4cf378f52ee6"
+CALLIBRATION_IMAGE = "duckietown/dt-core:daffy-amd64@sha256:d72e8a8c3191c146ecc2a812bdd036aaf15076e6c1cb9467304e0e54f9a39a10"
 
 
 def command(shell, args):

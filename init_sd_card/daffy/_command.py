@@ -92,8 +92,8 @@ SD_CARD_DEVICE = ""
 DEFAULT_ROBOT_TYPE = "duckiebot"
 #DEFAULT_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_04_camera,DT18_05_core"
 #DEFAULT_STACKS_TO_RUN = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_04_camera,DT18_05_core"
-DEFAULT_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_05_core"
-DEFAULT_STACKS_TO_RUN = "DT18_00_basic,DT18_01_health,DT18_03_interface"
+DEFAULT_STACKS_TO_LOAD = "DT18_00_basic,DT18_01_health,DT18_02_others,DT18_03_interface,DT18_05_core,DT18_06_calibration"
+DEFAULT_STACKS_TO_RUN = "DT18_00_basic,DT18_01_health,DT18_03_interface,DT18_05_core,DT18_06_calibration"
 
 # TODO: https://raw.githubusercontent.com/duckietown/Software/master18/misc/duckie.art
 
